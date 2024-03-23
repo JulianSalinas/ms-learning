@@ -1,15 +1,14 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
-WORKDIR /App
+# Use the .NET 6 runtime as a base image
+FROM mcr.microsoft.com/dotnet/runtime:6.0
 
-# Copy everything
-COPY . ./
-# Restore as distinct layers
-RUN dotnet restore
-# Build and publish a release
-RUN dotnet publish -c Release -o out
+# Set the working directory to /app
+WORKDIR /app
 
-# Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
-WORKDIR /App
-COPY --from=build-env /App/out .
-ENTRYPOINT ["dotnet", "DotNet.Docker.dll"]
+# Copy the contents of the published app to the container's /app directory
+COPY bin/Release/net6.0/publish/ .
+
+# Expose port 80 to the outside world
+EXPOSE 80
+
+# Set the command to run when the container starts
+CMD ["dotnet", "EventGridTestAPI.dll"]
